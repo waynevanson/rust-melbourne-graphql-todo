@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 async-graphql = { version = "5.0.7" }
+database = { path = "../database" }

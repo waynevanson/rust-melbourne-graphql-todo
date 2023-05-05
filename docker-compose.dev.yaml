@@ -1,25 +1,16 @@
 version: '3'
 
 services:
-  server:
-    depends_on:
-      - db
-    image: alpine:latest
-    working_dir: /server
-    entrypoint: /server/bin
-    volumes:
-      - ./target/release/:/server/
-    ports:
-      - 8000:8000
-
   db:
     image: postgres:alpine
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: example
   
   adminer:
     depends_on:
-      - db
+      - db 
     image: adminer
     restart: always
     ports:
