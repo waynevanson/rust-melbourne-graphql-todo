@@ -13,7 +13,7 @@ impl From<&database::User> for Name {
     fn from(value: &database::User) -> Self {
         Self {
             first: value.first_name.to_string(),
-            last: value.first_name.to_string(),
+            last: value.last_name.to_string(),
         }
     }
 }
@@ -45,5 +45,15 @@ impl Query {
             .ok_or_else(|| Error::new("Could not retrieve User with id from database"))?;
         let user = User::from(user_row);
         Ok(user)
+    }
+
+    async fn users<'ctx>(&self, context: &Context<'ctx>) -> Result<Vec<User>> {
+        let db = context.data::<Database>()?;
+        let users = db
+            .users
+            .values()
+            .map(|user| User::from(user))
+            .collect::<Vec<_>>();
+        Ok(users)
     }
 }

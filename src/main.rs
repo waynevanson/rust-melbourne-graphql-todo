@@ -1,4 +1,4 @@
-use async_graphql::{http::GraphiQLSource, Data, EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
 use axum::{
     extract::Extension,
@@ -6,8 +6,8 @@ use axum::{
     routing::get,
     Router, Server,
 };
-use database::Database;
-use graphql::*;
+use database::*;
+use graphql::{AppSchema, Query};
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
@@ -24,7 +24,16 @@ async fn graphiql() -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let db = Database::default();
+    let db = Database::new(
+        vec![User {
+            id: 323,
+            first_name: "Jason".to_string(),
+            last_name: "Statham".to_string(),
+        }],
+        vec![],
+        vec![],
+    );
+
     let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
         .data(db)
         .finish();
