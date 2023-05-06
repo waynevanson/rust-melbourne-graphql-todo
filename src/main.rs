@@ -1,3 +1,5 @@
+use std::sync::RwLock;
+
 use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
 use axum::{
@@ -7,7 +9,7 @@ use axum::{
     Router, Server,
 };
 use database::*;
-use graphql::{AppSchema, Query};
+use graphql::{AppSchema, Mutation, Pool, Query};
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
@@ -34,7 +36,9 @@ async fn main() {
         vec![],
     );
 
-    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
+    let db = Pool(RwLock::new(db));
+
+    let schema = Schema::build(Query, Mutation, EmptySubscription)
         .data(db)
         .finish();
 

@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 async-graphql = { version = "5.0.7" }
 database = { path = "../database" }
+rand = "0.8.5"
+uuid = { version = "1.3.2", features = ["v4"] }
