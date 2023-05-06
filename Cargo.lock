@@ -541,7 +541,6 @@ dependencies = [
  "async-graphql",
  "database",
  "rand",
- "uuid",
 ]
 
 [[package]]
@@ -997,7 +996,6 @@ dependencies = [
  "graphql",
  "rand",
  "tokio",
- "uuid",
 ]
 
 [[package]]
