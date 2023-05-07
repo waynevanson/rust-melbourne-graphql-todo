@@ -26,15 +26,18 @@ async fn graphiql() -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let db = Database::new(
-        vec![User {
+    let db = Database::new(vec![
+        Person {
             id: 323,
             first_name: "Jason".to_string(),
             last_name: "Statham".to_string(),
-        }],
-        vec![],
-        vec![],
-    );
+        },
+        Person {
+            id: 387,
+            first_name: "Mummy".to_string(),
+            last_name: "Statham".to_string(),
+        },
+    ]);
 
     let db = Pool(RwLock::new(db));
 
