@@ -1,6 +1,4 @@
-use std::sync::RwLock;
-
-use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{http::GraphiQLSource, EmptySubscription};
 use async_graphql_axum::{GraphQLRequest, GraphQLResponse, GraphQLSubscription};
 use axum::{
     extract::Extension,
@@ -9,7 +7,7 @@ use axum::{
     Router, Server,
 };
 use database::*;
-use graphql::{AppSchema, Query};
+use graphql::{AppSchema, Mutation, Query};
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
@@ -24,11 +22,17 @@ async fn graphiql() -> impl IntoResponse {
     response::Html(graphiql)
 }
 
-#[tokio::main]
-async fn main() {
+fn db_bootstrap() -> GraphDB {
     let db = GraphDB::default();
 
-    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
+    db
+}
+
+#[tokio::main]
+async fn main() {
+    let db = db_bootstrap();
+
+    let schema = AppSchema::build(Query, Mutation, EmptySubscription)
         .data(db)
         .finish();
 

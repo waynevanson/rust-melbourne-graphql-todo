@@ -6,9 +6,22 @@ use std::sync::{RwLock, RwLockReadGuard, RwLockWriteGuard};
 
 pub type Database = DiGraph<Entity, Relationship>;
 
-#[derive(Default)]
+#[derive(Debug, Default)]
+pub enum Door {
+    Opened,
+    #[default]
+    Closed,
+}
+
 pub struct GraphDB {
     lock: RwLock<Database>,
+}
+
+impl Default for GraphDB {
+    fn default() -> Self {
+        let lock = RwLock::default();
+        Self { lock }
+    }
 }
 
 impl GraphDB {
@@ -28,6 +41,17 @@ impl GraphDB {
                 _ => None,
             })
             .cloned()
+            .collect()
+    }
+
+    pub fn person_ids(&self) -> Vec<String> {
+        self.read()
+            .node_weights()
+            .filter_map(|node_weight| match node_weight {
+                Entity::Person(person) => Some(person),
+                _ => None,
+            })
+            .map(|user| user.id.to_owned())
             .collect()
     }
 
