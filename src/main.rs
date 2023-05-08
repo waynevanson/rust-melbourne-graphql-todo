@@ -9,7 +9,7 @@ use axum::{
     Router, Server,
 };
 use database::*;
-use graphql::{AppSchema, Mutation, Pool, Query};
+use graphql::{AppSchema, Query};
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
@@ -26,22 +26,9 @@ async fn graphiql() -> impl IntoResponse {
 
 #[tokio::main]
 async fn main() {
-    let db = Database::new(vec![
-        Person {
-            id: 323,
-            first_name: "Jason".to_string(),
-            last_name: "Statham".to_string(),
-        },
-        Person {
-            id: 387,
-            first_name: "Mummy".to_string(),
-            last_name: "Statham".to_string(),
-        },
-    ]);
+    let db = GraphDB::default();
 
-    let db = Pool(RwLock::new(db));
-
-    let schema = Schema::build(Query, Mutation, EmptySubscription)
+    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
         .data(db)
         .finish();
 
