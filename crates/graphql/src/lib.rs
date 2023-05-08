@@ -5,7 +5,7 @@ use database::GraphDB;
 use rand::random;
 use tokio_stream::StreamExt;
 
-pub type AppSchema = Schema<Query, Mutation, EmptySubscription>;
+pub type AppSchema = Schema<Query, Mutation, Subscription>;
 
 pub struct Query;
 
@@ -34,8 +34,9 @@ impl Query {
     }
 }
 
-#[derive(InputObject)]
-pub struct PersonInput {
+#[derive(Debug, SimpleObject)]
+struct Person {
+    id: String,
     first_name: String,
     last_name: String,
 }
@@ -50,6 +51,22 @@ fn random_from_ids(ids: Vec<String>) -> String {
     }
 }
 
+impl From<database::Person> for Person {
+    fn from(value: database::Person) -> Self {
+        Self {
+            id: value.id,
+            first_name: value.first_name,
+            last_name: value.last_name,
+        }
+    }
+}
+
+#[derive(InputObject)]
+pub struct PersonInput {
+    first_name: String,
+    last_name: String,
+}
+
 impl PersonInput {
     fn to_person_raw_excluding_ids(self, ids: Vec<String>) -> database::Person {
         let id = random_from_ids(ids);
@@ -57,23 +74,6 @@ impl PersonInput {
             id,
             first_name: self.first_name,
             last_name: self.last_name,
-        }
-    }
-}
-
-#[derive(Debug, SimpleObject)]
-struct Person {
-    id: String,
-    first_name: String,
-    last_name: String,
-}
-
-impl From<database::Person> for Person {
-    fn from(value: database::Person) -> Self {
-        Self {
-            id: value.id,
-            first_name: value.first_name,
-            last_name: value.last_name,
         }
     }
 }
@@ -111,13 +111,13 @@ impl Status {
     }
 }
 
-struct Subscription;
+pub struct Subscription;
 
 #[Subscription]
 impl Subscription {
-    async fn integers(&self) -> impl Stream<Item = Status> {
+    async fn doors(&self) -> impl Stream<Item = Status> {
         let mut value = Status::Open;
-        let interval = tokio::time::interval(Duration::from_secs(10));
+        let interval = tokio::time::interval(Duration::from_secs(2));
         tokio_stream::wrappers::IntervalStream::new(interval).map(move |_| {
             value = value.switch();
             value

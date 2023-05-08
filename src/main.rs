@@ -7,7 +7,7 @@ use axum::{
     Router, Server,
 };
 use database::*;
-use graphql::{AppSchema, Mutation, Query};
+use graphql::{AppSchema, Mutation, Query, Subscription};
 
 async fn graphql_handler(schema: Extension<AppSchema>, req: GraphQLRequest) -> GraphQLResponse {
     schema.execute(req.into_inner()).await.into()
@@ -24,7 +24,6 @@ async fn graphiql() -> impl IntoResponse {
 
 fn db_bootstrap() -> GraphDB {
     let db = GraphDB::default();
-
     db
 }
 
@@ -32,7 +31,7 @@ fn db_bootstrap() -> GraphDB {
 async fn main() {
     let db = db_bootstrap();
 
-    let schema = AppSchema::build(Query, Mutation, EmptySubscription)
+    let schema = AppSchema::build(Query, Mutation, Subscription)
         .data(db)
         .finish();
 
